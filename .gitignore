@@ -31,3 +31,12 @@ scalability_jobs_*
 .cproject
 .project
 .settings/
+
+.idea/
+cmake-build-debug/
+.DS_Store
+*/.DS_Store
+bld/
+boost_1_77_0.tar.bz2
+boost_1_77_0/
+benchbase/
