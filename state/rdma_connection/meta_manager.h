@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include <assert.h>
-#include <atomic>
 
 #include "util/common.h"
 #include "rlib/rdma_ctrl.hpp"
@@ -108,23 +107,12 @@ public:
         return redo_log_remote_buf_latch_addr;
     }
 
-    //fix log separate
     ALWAYS_INLINE
-    offset_t GetRedoLogBaseAddr() { return redo_log_base_addr; }
-    ALWAYS_INLINE
-    //offset_t GetRedoLogCurrAddr() { return redo_log_curr_addr; }
-    offset_t GetRedoLogCurrAddr()  {return redo_log_curr_addr.load();}
+    offset_t GetRedoLogCurrAddr() { return redo_log_curr_addr; }
 
     ALWAYS_INLINE
-    //void SetRedoLogCurrAddr(offset_t redo_log_curr_addr_) {
-    //    redo_log_curr_addr = redo_log_curr_addr_;
-    //}
-    void SetRedoLogCurrAddr(offset_t redo_log_curr_addr_){
-        redo_log_curr_addr.store(redo_log_curr_addr_);
-    }
-
-    offset_t FetchAddRedoLogCurrAddr(offset_t len){
-        redo_log_curr_addr.fetch_add(len);
+    void SetRedoLogCurrAddr(offset_t redo_log_curr_addr_) {
+        redo_log_curr_addr = redo_log_curr_addr_;
     }
 
     ALWAYS_INLINE
@@ -158,14 +146,7 @@ private:
     offset_t redo_log_base_addr = 0;  // base address for redo log buffer
     size_t log_buf_data_size;         // size of each log in redo log buffer
     // 防止 redo log buffer 和 txn list 地址冲突，覆盖数据
-    //offset_t redo_log_curr_addr = 0;  // current address of redo log buffer
-    
-    /**fix log separate
-     * redo_log_base_addr:redo log起始地址
-     * redo_log_curr_addr:redo log插入的偏移地址，原子变量
-     * redo_log_base_addr+redo_log_curr_addr:redo log的真实地址
-    */ 
-    std::atomic<offset_t> redo_log_curr_addr{1024};
+    offset_t redo_log_curr_addr = 0;  // current address of redo log buffer
 
 public:
     RNicHandler* opened_rnic;
