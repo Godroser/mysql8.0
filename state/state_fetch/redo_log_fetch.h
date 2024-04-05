@@ -109,10 +109,19 @@ class RedoLogFetch {
   }
 
   /**
-   * @StateReplicate: TODO: 回放 buffer 中存储的 log，实现状态恢复
-   * @return
+   * @StateReplicate: Todo 回放redo_log_fetch得到的日志
+   * 1. 去掉日志头尾
+   * 2. apply
    */
-  bool redo_log_replay() { return true; }
+  bool redo_log_replay(RedoLogItem* redoLogItem) { 
+    const byte *log_block = redoLogItem->buf;
+    size_t len = redoLogItem->buf_size;
+    do {
+
+    } while (log_block < buf + len);
+
+    return true; 
+  }
 
  private:
   // failStatus 为真，则说明需要进行故障恢复，继续之后的逻辑
