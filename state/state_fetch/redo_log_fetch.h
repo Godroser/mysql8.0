@@ -50,7 +50,7 @@ class RedoLogFetch {
     redoLogItem =
         (RedoLogItem *)log.rdma_buffer_allocator->Alloc(redo_log_buf_size);
     if (!log.coro_sched->RDMAReadSync(0, qp, (char *)redoLogItem,
-                                      meta_mgr->GetRedoLogCurrAddr(),
+                                      meta_mgr->GetRedoLogBaseAddr(),
                                       redo_log_buf_size)) {
       // Fail
       std::cout << "failed to read redo_log_remote_buf\n";
@@ -59,12 +59,12 @@ class RedoLogFetch {
     }
 
     // 取回 redo log buffer 的实际数据
-    // TODO:这里的size还不确定，需要与storage/innobase/log/log0buf.cc:1133保持一致
-    size_t log_buf_data_size = ut::INNODB_CACHE_LINE_SIZE; // log.buf_size;
+    //size_t log_buf_data_size = ut::INNODB_CACHE_LINE_SIZE; // log.buf_size;
+    size_t log_buf_data_size = meta_mgr->GetRedoLogCurrAddr() - sizeof(RedoLogItem);
     log_buf_data = (byte *)log.rdma_buffer_allocator->Alloc(log_buf_data_size);
     if (!log.coro_sched->RDMAReadSync(
             0, qp, (char *)log_buf_data,
-            meta_mgr->GetRedoLogCurrAddr() + sizeof(RedoLogItem),
+            meta_mgr->GetRedoLogBaseAddr() + sizeof(RedoLogItem),
             log_buf_data_size)) {
       // Fail
       std::cout << "failed to read log_buf_data\n";
